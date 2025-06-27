@@ -9,8 +9,9 @@ type ProjectConfig struct {
 }
 
 type ApiConfig struct {
-	Port   string `mapstructure:"port"`
-	MaxNum int    `mapstructure:"max_num"`
+	Port       string `mapstructure:"port"`
+	MaxNum     int    `mapstructure:"max_num"`
+	SessionTTL int    `mapstructure:"session_ttl"`
 }
 
 type LogConfig struct {
@@ -113,9 +114,10 @@ func defaultConfig() *Config {
 			Name: "MetaFarm",
 		},
 		API: ApiConfig{
-			Port:   ":80",
-			MaxNum: 500,
-		},
+	Port:       ":80",
+	MaxNum:     500,
+	SessionTTL: 86400,
+},
 		Log: LogConfig{
 			Compress:    false,
 			LeepDays:    7,

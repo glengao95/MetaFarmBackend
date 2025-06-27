@@ -1,8 +1,8 @@
 package redis
 
 import (
-	"MetaFarmBankend/src/component/config"
-	"MetaFarmBankend/src/component/logger"
+	"MetaFarmBackend/component/config"
+	"MetaFarmBackend/component/logger"
 	"errors"
 
 	"github.com/zeromicro/go-zero/core/stores/cache"

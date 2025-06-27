@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"MetaFarmBankend/src/component/config"
+	"MetaFarmBackend/component/config"
 
 	"github.com/davecgh/go-spew/spew"
 	"go.uber.org/zap"

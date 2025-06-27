@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"MetaFarmBankend/src/component/config"
-	log "MetaFarmBankend/src/component/logger"
+	"MetaFarmBackend/component/config"
+	log "MetaFarmBackend/component/logger"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

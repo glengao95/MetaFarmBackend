@@ -1,7 +1,7 @@
 package errors
 
 import (
-	"MetaFarmBankend/src/component/logger"
+	"MetaFarmBackend/component/logger"
 	"context"
 	"runtime"
 )
@@ -26,6 +26,16 @@ func New(code int, message string) *Error {
 
 func (e *Error) Error() string {
 	return e.Message
+}
+
+func (e *Error) WithError(err error) *Error {
+	e.Message = err.Error()
+	return e
+}
+
+func (e *Error) WithMessage(message string) *Error {
+	e.Message = message
+	return e
 }
 
 func (e *Error) WithStack() *Error {

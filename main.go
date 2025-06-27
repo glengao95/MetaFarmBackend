@@ -1,9 +1,9 @@
 package main
 
 import (
-	"MetaFarmBankend/src/api/router"
-	"MetaFarmBankend/src/component/config"
-	"MetaFarmBankend/src/component/context"
+	"MetaFarmBackend/api/router"
+	"MetaFarmBackend/component/config"
+	"MetaFarmBackend/component/context"
 )
 
 func main() {
