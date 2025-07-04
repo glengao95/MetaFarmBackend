@@ -30,7 +30,7 @@ func (dao *Dao) RecordLoginLog(ctx context.Context, walletAddress, ipAddress, us
 
 	// 异步记录日志
 	go func() {
-		dao.DB.Create(&log)
+		dao.DB.WithContext(ctx).Create(&log)
 	}()
 }
 

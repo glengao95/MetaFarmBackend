@@ -1,28 +1,27 @@
 package dao
 
 import (
+	"context"
 	"time"
-
-	"MetaFarmBackend/component/db"
 
 	"github.com/pkg/errors"
 )
 
 // UserItems 用户道具表结构体
 type UserItems struct {
-	ID            int64     `gorm:"column:id;primaryKey;autoIncrement" json:"id"`
-	UserAddress   string    `gorm:"column:user_address;size:42;not null" json:"user_address"`
-	ItemTokenID   int64     `gorm:"column:item_token_id;not null" json:"item_token_id"`
-	ItemType      int8      `gorm:"column:item_type;not null;index:idx_item_type" json:"item_type"`
-	ItemName      string    `gorm:"column:item_name;size:50;not null" json:"item_name"`
-	Rarity        int8      `gorm:"column:rarity;not null;default:1;index:idx_rarity" json:"rarity"`
-	Power         int       `gorm:"column:power;default:0" json:"power"`
-	MaxUses       int       `gorm:"column:max_uses;default:0" json:"max_uses"`
-	RemainingUses int       `gorm:"column:remaining_uses;default:0;index:idx_remaining_uses" json:"remaining_uses"`
-	MetadataURI   string    `gorm:"column:metadata_uri;size:255" json:"metadata_uri"`
-	IsActive      int8      `gorm:"column:is_active;default:1" json:"is_active"`
-	CreateTime    time.Time `gorm:"column:create_time;not null" json:"create_time"`
-	UpdateTime    time.Time `gorm:"column:update_time;not null;autoUpdateTime" json:"update_time"`
+	ID            int64     `gorm:"column:id;primaryKey;autoIncrement" json:"id"`                                   // 主键ID
+	UserAddress   string    `gorm:"column:user_address;size:42;not null" json:"user_address"`                       // 用户钱包地址
+	ItemTokenID   int64     `gorm:"column:item_token_id;not null" json:"item_token_id"`                             // 道具TokenID
+	ItemType      int8      `gorm:"column:item_type;not null;index:idx_item_type" json:"item_type"`                 // 道具类型(1:肥料, 2:杀虫剂等)
+	ItemName      string    `gorm:"column:item_name;size:50;not null" json:"item_name"`                             // 道具名称
+	Rarity        int8      `gorm:"column:rarity;not null;default:1;index:idx_rarity" json:"rarity"`                // 稀有度(1:普通, 2:稀有, 3:史诗)
+	Power         int       `gorm:"column:power;default:0" json:"power"`                                            // 道具效果值
+	MaxUses       int       `gorm:"column:max_uses;default:0" json:"max_uses"`                                      // 最大使用次数
+	RemainingUses int       `gorm:"column:remaining_uses;default:0;index:idx_remaining_uses" json:"remaining_uses"` // 剩余使用次数
+	MetadataURI   string    `gorm:"column:metadata_uri;size:255" json:"metadata_uri"`                               // 元数据URI
+	IsActive      int8      `gorm:"column:is_active;default:1" json:"is_active"`                                    // 是否激活(0:否, 1:是)
+	CreateTime    time.Time `gorm:"column:create_time;not null" json:"create_time"`                                 // 创建时间
+	UpdateTime    time.Time `gorm:"column:update_time;not null;autoUpdateTime" json:"update_time"`                  // 更新时间
 }
 
 // TableName 设置表名
@@ -46,9 +45,9 @@ func NewUserItems(userAddress string, itemTokenID int64, itemType int8, itemName
 }
 
 // GetUserItemByUserAndToken 根据用户地址和道具TokenID获取道具信息
-func GetUserItemByUserAndToken(userAddress string, itemTokenID int64) (*UserItems, error) {
+func (dao *Dao) GetUserItemByUserAndToken(ctx context.Context, userAddress string, itemTokenID int64) (*UserItems, error) {
 	var userItem UserItems
-	err := db.GetDB().Where("user_address = ? AND item_token_id = ?", userAddress, itemTokenID).First(&userItem).Error
+	err := dao.DB.WithContext(ctx).Where("user_address = ? AND item_token_id = ?", userAddress, itemTokenID).First(&userItem).Error
 	if err != nil {
 		return nil, err
 	}
@@ -56,9 +55,9 @@ func GetUserItemByUserAndToken(userAddress string, itemTokenID int64) (*UserItem
 }
 
 // GetUserItemsByType 根据道具类型获取用户道具列表
-func GetUserItemsByType(userAddress string, itemType int8) ([]*UserItems, error) {
+func (dao *Dao) GetUserItemsByType(ctx context.Context, userAddress string, itemType int8) ([]*UserItems, error) {
 	var userItems []*UserItems
-	err := db.GetDB().Where("user_address = ? AND item_type = ?", userAddress, itemType).Find(&userItems).Error
+	err := dao.DB.WithContext(ctx).Where("user_address = ? AND item_type = ?", userAddress, itemType).Find(&userItems).Error
 	if err != nil {
 		return nil, err
 	}
@@ -66,20 +65,20 @@ func GetUserItemsByType(userAddress string, itemType int8) ([]*UserItems, error)
 }
 
 // CreateUserItems 创建用户道具记录
-func (u *UserItems) CreateUserItems() error {
-	return db.GetDB().Create(u).Error
+func (dao *Dao) CreateUserItems(ctx context.Context, userItems *UserItems) error {
+	return dao.DB.WithContext(ctx).Create(userItems).Error
 }
 
 // UpdateUserItems 更新用户道具记录
-func (u *UserItems) UpdateUserItems() error {
-	return db.GetDB().Save(u).Error
+func (dao *Dao) UpdateUserItems(ctx context.Context, userItems *UserItems) error {
+	return dao.DB.WithContext(ctx).Save(userItems).Error
 }
 
 // DecreaseRemainingUses 减少道具剩余使用次数
-func (u *UserItems) DecreaseRemainingUses(amount int) error {
-	if u.RemainingUses < amount {
+func (dao *Dao) DecreaseRemainingUses(ctx context.Context, userItems *UserItems, amount int) error {
+	if userItems.RemainingUses < amount {
 		return errors.New("insufficient remaining uses")
 	}
-	u.RemainingUses -= amount
-	return u.UpdateUserItems()
+	userItems.RemainingUses -= amount
+	return dao.UpdateUserItems(ctx, userItems)
 }

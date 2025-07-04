@@ -1,6 +1,6 @@
 package router
 
-	import (
+import (
 	"MetaFarmBackend/service"
 	"net/http"
 	"strings"
@@ -159,6 +159,8 @@ func (c *WalletAuthController) setSessionCookie(ctx *gin.Context, token string) 
 }
 
 // 注册路由
-func (c *WalletAuthController) RegisterRoutes(r *gin.RouterGroup) {
-
+func (c *WalletAuthController) RegisterRoutes(r *gin.Engine) {
+	r.POST("/login/message", c.GenerateLoginMessage)
+	r.POST("/login", c.VerifySignatureAndLogin)
+	r.POST("/logout", c.Logout)
 }

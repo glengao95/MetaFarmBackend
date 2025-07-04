@@ -17,10 +17,12 @@ func InitRouter(appContext *context.AppContext) *gin.Engine {
 	r.Use(middleware.CORSMiddleware())
 
 	authController := NewWalletAuthController(appContext.WalletAuthService)
-	r.POST("/login/message", authController.GenerateLoginMessage)
-	r.POST("/login", authController.VerifySignatureAndLogin)
-	r.POST("/logout", authController.Logout)
+	authController.RegisterRoutes(r)
 
-	loadV1(r, appContext)
+	apiLand := r.Group("/api/land")
+	{
+		landController := NewLandController(appContext.LandService)
+		landController.RegisterRoutes(apiLand)
+	}
 	return r
 }

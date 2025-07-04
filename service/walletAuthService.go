@@ -99,7 +99,7 @@ func (s *walletAuthServiceImpl) VerifySignatureAndLogin(ctx context.Context, wal
 	}
 
 	// 查找用户钱包记录
-	wallet, err := s.dao.GetUserWalletByAddressAndNonce(walletAddress, nonce)
+	wallet, err := s.dao.GetUserWalletByAddressAndNonce(ctx, walletAddress, nonce)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (s *walletAuthServiceImpl) VerifySignatureAndLogin(ctx context.Context, wal
 	}
 
 	// 更新最后登录时间
-	err = s.dao.UpdateLastLoginAt(walletAddress)
+	err = s.dao.UpdateLastLoginAt(ctx, walletAddress)
 	if err != nil {
 		return nil, errors.Wrap(err, "更新最后登录时间失败")
 	}
@@ -129,7 +129,7 @@ func (s *walletAuthServiceImpl) VerifySignatureAndLogin(ctx context.Context, wal
 
 // 验证会话令牌
 func (s *walletAuthServiceImpl) VerifySessionToken(ctx context.Context, token string) (*SessionInfo, error) {
-	session, err := s.dao.GetValidSessionByToken(token)
+	session, err := s.dao.GetValidSessionByToken(ctx, token)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("无效的会话令牌")
@@ -146,12 +146,13 @@ func (s *walletAuthServiceImpl) VerifySessionToken(ctx context.Context, token st
 
 // 注销会话
 func (s *walletAuthServiceImpl) RevokeSession(ctx context.Context, token string) error {
-	return s.dao.RevokeSessionByToken(token)
+	return s.dao.RevokeSessionByToken(ctx, token)
+
 }
 
 // 保存或更新用户钱包记录
 func (s *walletAuthServiceImpl) saveOrUpdateWallet(ctx context.Context, walletAddress, nonce string) error {
-	_, err := s.dao.GetUserWalletByAddress(walletAddress)
+	_, err := s.dao.GetUserWalletByAddress(ctx, walletAddress)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			// 创建新用户和钱包记录
@@ -160,8 +161,8 @@ func (s *walletAuthServiceImpl) saveOrUpdateWallet(ctx context.Context, walletAd
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			}
-			if err := s.dao.CreateUser(&user); err != nil {
-				return errors.Wrap(err, "创建用户失败")
+			if err1 := s.dao.CreateUser(ctx, &user); err1 != nil {
+				return errors.Wrap(err1, "创建用户失败")
 			}
 
 			wallet := dao.UserWallet{
@@ -174,13 +175,14 @@ func (s *walletAuthServiceImpl) saveOrUpdateWallet(ctx context.Context, walletAd
 				UpdatedAt:     time.Now(),
 			}
 
-			return s.dao.CreateUserWallet(&wallet)
+			return s.dao.CreateUserWallet(ctx, &wallet)
 		}
 		return errors.Wrap(err, "查询用户钱包失败")
 	}
 
 	// 更新随机数
-	return s.dao.UpdateNonce(walletAddress, nonce)
+	return s.dao.UpdateNonce(ctx, walletAddress, nonce)
+
 }
 
 // 创建会话
@@ -201,7 +203,8 @@ func (s *walletAuthServiceImpl) createSession(ctx context.Context, userID uint64
 		UpdatedAt:     time.Now(),
 	}
 
-	return sessionToken, expiresAt, s.dao.CreateLoginSession(&session)
+	return sessionToken, expiresAt, s.dao.CreateLoginSession(ctx, &session)
+
 }
 
 // 生成随机用户名

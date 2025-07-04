@@ -10,15 +10,6 @@ import (
 	"github.com/zeromicro/go-zero/core/stores/redis"
 )
 
-const (
-	// getAndDelScript 获取并删除key所关联的值lua脚本
-	getAndDelScript = `local current = redis.call('GET', KEYS[1]);
-	if (current) then
-		redis.call('DEL', KEYS[1]);
-	end
-	return current;`
-)
-
 type Store struct {
 	kv.Store
 	Redis *redis.Redis

@@ -76,6 +76,19 @@ type MetadataParse struct {
 	TraitValueTags []string `mapstructure:"trait_value_tags"`
 }
 
+// EthereumConfig 以太坊配置
+ type EthereumConfig struct {
+	RPCURL     string `mapstructure:"rpc_url"`
+	PrivateKey string `mapstructure:"private_key"`
+ }
+
+// ZkSyncConfig zkSync配置
+ type ZkSyncConfig struct {
+	RPCURL        string `mapstructure:"rpc_url"`
+	PrivateKey    string `mapstructure:"private_key"`
+	BridgeAddress string `mapstructure:"bridge_address"`
+}
+
 type Config struct {
 	Project  ProjectConfig    `mapstructure:"project_cfg"`
 	API      ApiConfig        `mapstructure:"api"`
@@ -86,6 +99,10 @@ type Config struct {
 	EasySwap EasySwapMarket   `mapstructure:"easyswap_market"`
 	Image    ImageConfig      `mapstructure:"image_cfg"`
 	Metadata MetadataParse    `mapstructure:"metadata_parse"`
+	// 以太坊配置
+	Ethereum EthereumConfig `mapstructure:"ethereum"`
+	// zkSync配置
+	ZkSync ZkSyncConfig `mapstructure:"zksync"`
 }
 
 func LoadConfig(path string) (*Config, error) {
